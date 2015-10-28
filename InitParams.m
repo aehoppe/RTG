@@ -1,4 +1,4 @@
-%Initializes parameters for RTG model.
+% Initializes parameters for RTG model.
 
 % Changeable variables
 params.puMass = 4.8; % kg
@@ -19,4 +19,8 @@ params.puEnergyPerKg = params.puDecayEnergy * params.puAtomsPerKg; % J/kg
 params.puHalfLife = 87.7; % years
 
 % Other RTG properties
-params.emissivity = 0.9; % unitless
+params.emissivity = 0.9; % unitless 
+
+% General Constants
+params.stefanBoltzmann = 5.670e-8; % E m^-2 K^-4
+
