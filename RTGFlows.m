@@ -1,4 +1,4 @@
-% Flow function for RTG heat flow model. Your omegas are too high.
+ % Flow function for RTG heat flow model. Your omegas are too high.
 
 function res = RTGFlows(t, X)
 
@@ -7,7 +7,7 @@ activeFuelMass = X(1); % First element: Pu-238 mass stock
 rtgHeat = X(2); % Second element: RTG heat energy stock
 
 % define flows
-dmdt = -ln(2) * (1 / params.puHalfLife) * activeFuelMass; % mass flow
+dmdt = -log(2) * (1 / params.puHalfLife) * activeFuelMass; % mass flow
 
 dQdt = dmdt * params.puEnergyPerKg + ... % radioactive decay energy
     - params.emissivity * params.stefanBoltzman * ...
