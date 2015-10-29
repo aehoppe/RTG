@@ -1,15 +1,14 @@
-function [t, We] = simulateRTG()
+function [T, We] = simulateRTG(params)
 
 %% Initialize Params
-InitParams;
+puMass = params.puMass;
 
 %% Test Flow Functions
 
-[T, X] = ode45(@RTGFlows, [0, 100], [params.puMass, 0])
+sol = ode45(@RTGFlows, [0, 100], [puMass, 0]);
 
-%% Plo
-disp(1)
-
-
+%% Plot
+%disp(1)
+plot(T,X);
 
 end

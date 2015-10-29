@@ -1,17 +1,23 @@
  % Flow function for RTG heat flow model. Your omegas are too high.
 
-function res = RTGFlows(t, X)
+function res = RTGFlows(~, X)
 
 % unpack input vector
 activeFuelMass = X(1); % First element: Pu-238 mass stock
 rtgHeat = X(2); % Second element: RTG heat energy stock
 
-% define flows
-dmdt = -log(2) * (1 / params.puHalfLife) * activeFuelMass; % mass flow
+puHalfLife = params.puHalfLife;
+puEnergyPerKg = params.EnergyPerKg;
+emissivity = params.emissivity;
+stefanBoltzman = params.stefanBoltzman;
+puMass = params.puMass;
 
-dQdt = dmdt * params.puEnergyPerKg + ... % radioactive decay energy
-    - params.emissivity * params.stefanBoltzman * ...
-    (energyToTemp(rtgHeat, params.puMass, puSpecificHeat))^4; % radiation
+% define flows
+dmdt = -log(2) * (1 / puHalfLife) * activeFuelMass; % mass flow
+
+dQdt = dmdt * puEnergyPerKg + ... % radioactive decay energy
+    - emissivity * stefanBoltzman * ...
+    (energyToTemp(rtgHeat, puMass, puSpecificHeat))^4; % radiation
 
 % pack results (mass; heat energy)
 res = [dmdt; dQdt];
