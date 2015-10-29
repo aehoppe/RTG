@@ -4,33 +4,40 @@ function [T, We] = simulateRTG(params)
 %% Initialize Params
 
 puMass = params.puMass;
+puHalfLife = params.puHalfLife;
+puEnergyPerKg = params.puEnergyPerKg;
+emissivity = params.emissivity;
+stefanBoltzmann = params.stefanBoltzmann;
+puMass = params.puMass;
+puSpecificHeat = params.puSpecificHeat;
+
+initialEnergy = 830 * puMass * puSpecificHeat;
 
 %% Test Flow Functions
 
-sol = ode45(@RTGFlows, [0, 100], [puMass, 0]);
+%options = odeset('OutputFcn',@outputFunction, 'Events', @events)
+sol = ode45(@RTGFlows, [0, 100], [puMass, initialEnergy]);
 
 %% Plot
 %disp(1)
-plot(T,X);
+plot(sol.x, sol.y(2,:), 'r*');
 
-%% Flow function for RTG heat flow model.
+%% ODE options functions
+
+
+
+%% RTG Flow function
 function res = RTGFlows(~, X)
 
 % unpack input vector
 activeFuelMass = X(1); % First element: Pu-238 mass stock
 rtgHeat = X(2); % Second element: RTG heat energy stock
 
-puHalfLife = params.puHalfLife;
-puEnergyPerKg = params.EnergyPerKg;
-emissivity = params.emissivity;
-stefanBoltzman = params.stefanBoltzman;
-puMass = params.puMass;
-
 % define flows
 dmdt = -log(2) * (1 / puHalfLife) * activeFuelMass; % mass flow
 
-dQdt = dmdt * puEnergyPerKg + ... % radioactive decay energy
-    - emissivity * stefanBoltzman * ...
+dQdt = dmdt * puEnergyPerKg - ... % radioactive decay energy
+    emissivity * stefanBoltzmann * ...
     (energyToTemp(rtgHeat, puMass, puSpecificHeat))^4; % radiation
 
 % pack results (mass; heat energy)
