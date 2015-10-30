@@ -10,6 +10,7 @@ emissivity = params.emissivity;
 stefanBoltzmann = params.stefanBoltzmann;
 puMass = params.puMass;
 puSpecificHeat = params.puSpecificHeat;
+puSurfaceArea = params.puSurfaceArea;
 
 initialEnergy = 830 * puMass * puSpecificHeat;
 
@@ -34,11 +35,11 @@ activeFuelMass = X(1); % First element: Pu-238 mass stock
 rtgHeat = X(2); % Second element: RTG heat energy stock
 
 % define flows
-dmdt = -log(2) * (1 / puHalfLife) * activeFuelMass; % mass flow
+dmdt = -(log(2) * (1 / puHalfLife) * activeFuelMass); % mass flow
 
 dQdt = dmdt * puEnergyPerKg - ... % radioactive decay energy
-    emissivity * stefanBoltzmann * ...
-    (energyToTemp(rtgHeat, puMass, puSpecificHeat))^4; % radiation
+    3.1569e7 * puSurfaceArea * emissivity * stefanBoltzmann * ...
+    (energyToTemp(rtgHeat, puMass, puSpecificHeat)^4); % radiation
 
 % pack results (mass; heat energy)
 res = [dmdt; dQdt];

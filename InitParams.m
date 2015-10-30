@@ -22,5 +22,5 @@ params.puHalfLife = 87.7; % years
 params.emissivity = 0.9; % unitless 
 
 % General Constants
-params.stefanBoltzmann = 5.670e-8; % E m^-2 K^-4
+params.stefanBoltzmann = 5.670e-8; % W m^-2 K^-4
 
