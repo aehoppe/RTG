@@ -2,6 +2,7 @@
 
 function [T, We] = simulateRTG(params)
 %% Initialize Params
+InitParams;
 
 puMass = params.puMass;
 puHalfLife = params.puHalfLife;
@@ -12,16 +13,21 @@ puMass = params.puMass;
 puSpecificHeat = params.puSpecificHeat;
 puSurfaceArea = params.puSurfaceArea;
 
-%initialEnergy = 830 * puMass * puSpecificHeat;
-initialEnergy = 1400 * 4.8 * 1300;
+simulationTimeout = 300;
+
+initialEnergy = 1499 * puMass * puSpecificHeat;
+
+%% ODE options functions
+
+%options = odeset('OutputFcn',@outputFunction, 'Events', @events)
 
 %% Test Flow Functions
 
-%options = odeset('OutputFcn',@outputFunction, 'Events', @events)
-[Times, Stocks] = ode23s(@RTGFlows, [0, 300], [puMass, initialEnergy]);
+[Times, Stocks] = ode23s(@RTGFlows, [0, simulationTimeout], [puMass, initialEnergy]);
+Masses = Stocks(:,1);
 Energy = Stocks(:,2);
-plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
-return;
+
+%{
 activeMass = puMass;
 currentEnergy = initialEnergy;
 
@@ -37,17 +43,20 @@ for i=1:10 * 1e5
     activeMass = activeMass + results(1);
     currentEnergy = currentEnergy + results(2);
 end
-
+%}
 %% Plot
-%disp(1)
-%plot(sol.x, sol.y(2,:), 'r*');
+
 %hold on
-%plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
-%plot(Times, Masses, 'b*-');
-xlabel('Years');
-%% ODE options functions
-
-
+figure();
+plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
+title(['RTG Temperature over ',char(simulationTimeout),' years']);
+xlabel('Time(years)');
+ylabel('Temperature(K)');
+figure();
+plot(Times, Masses, 'b*-');
+title(['Active Fuel Mass over ',char(simulationTimeout),' years']);
+xlabel('Time(years)');
+ylabel('Mass(kg)');
 
 %% RTG Flow function
 function res = RTGFlows(~, X)
