@@ -13,13 +13,15 @@ puSpecificHeat = params.puSpecificHeat;
 puSurfaceArea = params.puSurfaceArea;
 
 %initialEnergy = 830 * puMass * puSpecificHeat;
-initialEnergy = 830 * 4.8 * 1300;
+initialEnergy = 1400 * 4.8 * 1300;
 
 %% Test Flow Functions
 
 %options = odeset('OutputFcn',@outputFunction, 'Events', @events)
-%sol = ode45(@RTGFlows, [0, 100], [puMass, initialEnergy]);
-
+[Times, Stocks] = ode23s(@RTGFlows, [0, 300], [puMass, initialEnergy]);
+Energy = Stocks(:,2);
+plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
+return;
 activeMass = puMass;
 currentEnergy = initialEnergy;
 
@@ -39,8 +41,8 @@ end
 %% Plot
 %disp(1)
 %plot(sol.x, sol.y(2,:), 'r*');
-hold on
-plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
+%hold on
+%plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
 %plot(Times, Masses, 'b*-');
 xlabel('Years');
 %% ODE options functions
@@ -62,7 +64,7 @@ end
 
 heatGenerated = dmdt * puEnergyPerKg; % radioactive decay energy
 
-envTemp = 100; %environment temperature
+envTemp = 2; %environment temperature
 myTemp = energyToTemp(rtgHeat, puMass, puSpecificHeat);
 
 heatLost =  3.1569e7 * puSurfaceArea * emissivity * stefanBoltzmann * ...
