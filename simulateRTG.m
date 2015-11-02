@@ -8,7 +8,6 @@ puHalfLife = params.puHalfLife;
 puEnergyPerKg = params.puEnergyPerKg;
 emissivity = params.emissivity;
 stefanBoltzmann = params.stefanBoltzmann;
-puMass = params.puMass;
 puSpecificHeat = params.puSpecificHeat;
 puSurfaceArea = params.puSurfaceArea;
 powerThreshold = threshold;
