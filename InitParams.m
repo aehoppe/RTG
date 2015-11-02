@@ -2,6 +2,7 @@
 
 % Changeable variables
 params.puMass = 4.8; % kg
+params.powerThreshold = 100; % W
 
 % Plutonium geometry
 params.puDensity = 19816; % kg/m^3
@@ -23,4 +24,5 @@ params.emissivity = 0.9; % unitless
 
 % General Constants
 params.stefanBoltzmann = 5.670e-8; % W m^-2 K^-4
+params.spaceTemp = 2; %K
 

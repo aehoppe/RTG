@@ -1,8 +1,7 @@
 %% Your omegas are too high.
 
 function [T, We] = simulateRTG(params)
-%% Initialize Params
-InitParams;
+%% Unpack Params
 
 puMass = params.puMass;
 puHalfLife = params.puHalfLife;
@@ -13,17 +12,52 @@ puMass = params.puMass;
 puSpecificHeat = params.puSpecificHeat;
 puSurfaceArea = params.puSurfaceArea;
 
-simulationTimeout = 300;
+simulationTimeout = 3000;
 
 initialEnergy = 1499 * puMass * puSpecificHeat;
 
 %% ODE options functions
 
-%options = odeset('OutputFcn',@outputFunction, 'Events', @events)
+options = odeset('OutputFcn', @output_fcn);
+
+%hard code vector for tracking electrical power output
+We = [];
+
+    function status = output_fcn(~, Y, flag)
+        %calculate flows again, to see if we should stop.
+        
+        %don't run when flag
+        if (strcmp(flag,'done'))
+            return;
+        end
+        
+        % unpack input vector
+        rtgHeat = Y(2); % Second element: RTG heat energy stock
+
+        envTemp = params.spaceTemp; %environment temperature
+        myTemp = energyToTemp(rtgHeat, puMass, puSpecificHeat);
+
+        heatLostWatts = puSurfaceArea * emissivity * stefanBoltzmann * ...
+            (myTemp - envTemp)^4; % radiation
+        
+        % 6 percent efficient generation
+        electricalPower = heatLostWatts * 0.064;
+        
+        %add to power tracking vector
+        We = [We, electricalPower];
+        
+        %Stop if electricalPower is below the threshold
+        if (electricalPower < params.powerThreshold)
+            status = 1;
+        else
+            status = 0;
+        end
+        
+    end
 
 %% Test Flow Functions
 
-[Times, Stocks] = ode23s(@RTGFlows, [0, simulationTimeout], [puMass, initialEnergy]);
+[Times, Stocks] = ode23s(@RTGFlows, [0, simulationTimeout], [puMass, initialEnergy], options);
 Masses = Stocks(:,1);
 Energy = Stocks(:,2);
 
@@ -44,7 +78,7 @@ for i=1:10 * 1e5
     currentEnergy = currentEnergy + results(2);
 end
 %}
-%% Plot
+%% Debugging/Validation Plotting
 
 %hold on
 figure();
@@ -57,34 +91,31 @@ plot(Times, Masses, 'b*-');
 title(['Active Fuel Mass over ',char(simulationTimeout),' years']);
 xlabel('Time(years)');
 ylabel('Mass(kg)');
+figure();
+plot(Times, We, 'g*-');
+refline(0, params.powerThreshold)
 
 %% RTG Flow function
-function res = RTGFlows(~, X)
+function res = RTGFlows(~, Y)
 
-% unpack input vector
-activeFuelMass = X(1); % First element: Pu-238 mass stock
-rtgHeat = X(2); % Second element: RTG heat energy stock
+    % unpack input vector
+    activeFuelMass = Y(1); % First element: Pu-238 mass stock
+    rtgHeat = Y(2); % Second element: RTG heat energy stock
 
-% define flows
-dmdt = log(2) * (1 / puHalfLife) * activeFuelMass; % mass flow
-if rtgHeat < 0
-    %disp('get mad');
-end
+    % define flows
+    dmdt = log(2) * (1 / puHalfLife) * activeFuelMass; % mass flow
 
-heatGenerated = dmdt * puEnergyPerKg; % radioactive decay energy
+    heatGenerated = dmdt * puEnergyPerKg; % radioactive decay energy
 
-envTemp = 2; %environment temperature
-myTemp = energyToTemp(rtgHeat, puMass, puSpecificHeat);
+    envTemp = params.spaceTemp; %environment temperature
+    myTemp = energyToTemp(rtgHeat, puMass, puSpecificHeat);
 
-heatLost =  3.1569e7 * puSurfaceArea * emissivity * stefanBoltzmann * ...
-    (myTemp - envTemp)^4; % radiation
-   
-if myTemp < envTemp
-    heatLost = -abs(heatLost);
-end
+    heatLost =  3.1569e7 * puSurfaceArea * emissivity * stefanBoltzmann * ...
+        (myTemp - envTemp)^4; % radiation
 
-% pack results (mass; heat energy)
-res = [-dmdt; heatGenerated - heatLost];
+
+    % pack results (mass; heat energy)
+    res = [-dmdt; heatGenerated - heatLost];
 
 end
 
