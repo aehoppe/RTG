@@ -95,23 +95,23 @@ end
 %}
 %% Debugging/Validation Plotting
 
-%hold on
-figure();
-plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
-title(['RTG Temperature over ',num2str(simulationTimeout),' years']);
-xlabel('Time(years)');
-ylabel('Temperature(K)');
-figure();
-plot(Times, Masses, 'b*-');
-title(['Active Fuel Mass over ',num2str(simulationTimeout),' years']);
-xlabel('Time(years)');
-ylabel('Mass(kg)');
-figure();
-plot(Times, We, 'g*-');
-refline(0, params.powerThreshold);
-title(['Power Output over ',num2str(simulationTimeout),' years']);
-xlabel('Time(years)');
-ylabel('Power(watts)');
+% %hold on
+% figure();
+% plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
+% title(['RTG Temperature over ',num2str(simulationTimeout),' years']);
+% xlabel('Time(years)');
+% ylabel('Temperature(K)');
+% figure();
+% plot(Times, Masses, 'b*-');
+% title(['Active Fuel Mass over ',num2str(simulationTimeout),' years']);
+% xlabel('Time(years)');
+% ylabel('Mass(kg)');
+% figure();
+% plot(Times, We, 'g*-');
+% refline(0, params.powerThreshold);
+% title(['Power Output over ',num2str(simulationTimeout),' years']);
+% xlabel('Time(years)');
+% ylabel('Power(watts)');
 
 %% RTG Flow function
 function res = RTGFlows(~, Y)
