@@ -18,7 +18,7 @@ initialEnergy = 1499 * puMass * puSpecificHeat;
 
 %% ODE options functions
 
-options = odeset('OutputFcn', @output_fcn);
+options = odeset('OutputFcn', @output_fcn, 'MaxStep', 4);
 
 %hard code vector for tracking electrical power output
 %currentPowerOutput = 1;
@@ -70,10 +70,15 @@ We = [];
 Masses = Stocks(:,1);
 Energy = Stocks(:,2);
 
-T = Times(end);
+if abs(We(end) - powerThreshold) < abs(We(end-1) - powerThreshold)
+    T = Times(end);
+else
+    T = Times(end-1);
+    simulationTimeout = Times(end-1);
+end
 
-%length(Times)
-%length(We)
+% length(Times)
+% length(We)
 
 %{
 activeMass = puMass;
@@ -94,7 +99,7 @@ end
 %}
 %% Debugging/Validation Plotting
 
-% %hold on
+% hold on
 % figure();
 % plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
 % title(['RTG Temperature over ',num2str(simulationTimeout),' years']);
