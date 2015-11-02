@@ -1,3 +1,4 @@
+%% Build data set
 X = zeros(1,200);
 Y = zeros(1,200);
 Z =zeros(200);
@@ -11,6 +12,7 @@ for i = 1:200
     end
 end
 
+%% plot
 contourf(X, Y, Z);
 title('Operational time of an RTG')
 xlabel('Mass of Plutonium (kg)')
