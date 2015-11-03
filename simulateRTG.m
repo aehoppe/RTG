@@ -70,12 +70,12 @@ We = [];
 Masses = Stocks(:,1);
 Energy = Stocks(:,2);
 
-if abs(We(end) - powerThreshold) < abs(We(end-1) - powerThreshold)
-    T = Times(end);
-else
+%if abs(We(end) - powerThreshold) < abs(We(end-1) - powerThreshold)
+%    T = Times(end);
+%else
     T = Times(end-1);
     simulationTimeout = Times(end-1);
-end
+%end
 
 % length(Times)
 % length(We)
@@ -98,25 +98,25 @@ for i=1:10 * 1e5
 end
 %}
 %% Debugging/Validation Plotting
-
-% hold on
-% figure();
-% plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
-% title(['RTG Temperature over ',num2str(simulationTimeout),' years']);
-% xlabel('Time(years)');
-% ylabel('Temperature(K)');
-% figure();
-% plot(Times, Masses, 'b*-');
-% title(['Active Fuel Mass over ',num2str(simulationTimeout),' years']);
-% xlabel('Time(years)');
-% ylabel('Mass(kg)');
-% figure();
-% plot(Times, We, 'g*-');
-% refline(0, params.powerThreshold);
-% title(['Power Output over ',num2str(simulationTimeout),' years']);
-% xlabel('Time(years)');
-% ylabel('Power(watts)');
-
+%{
+hold on
+figure();
+plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
+title(['RTG Temperature over ',num2str(simulationTimeout),' years']);
+xlabel('Time(years)');
+ylabel('Temperature(K)');
+figure();
+plot(Times, Masses, 'b*-');
+title(['Active Fuel Mass over ',num2str(simulationTimeout),' years']);
+xlabel('Time(years)');
+ylabel('Mass(kg)');
+figure();
+plot(Times, We, 'g*-');
+refline(0, params.powerThreshold);
+title(['Power Output over ',num2str(simulationTimeout),' years']);
+xlabel('Time(years)');
+ylabel('Power(watts)');
+%}
 %% RTG Flow function
 function res = RTGFlows(~, Y)
 
