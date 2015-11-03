@@ -14,8 +14,9 @@ end
 
 %% plot
 imagesc(Time, Threshold, Mass);
-colorbar
+hcb=colorbar;
 set(gca, 'YDir', 'normal')
-title('Minimum Pu Mass for RTG Mission')
+title('Minimum ^{238}Pu Mass for RTG Mission')
 xlabel('Mission Duration (years)')
 ylabel('Power Threshold (W)')
+ylabel(hcb, 'Required ^{238}Pu Mass (kg)')
