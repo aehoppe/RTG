@@ -14,7 +14,7 @@ powerThreshold = threshold;
 
 simulationTimeout = 3000;
 
-initialEnergy = 20 * puMass * puSpecificHeat;
+initialEnergy = 294 * puMass * puSpecificHeat;
 
 hitsThreshold = false;
 
