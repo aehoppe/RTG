@@ -14,7 +14,9 @@ powerThreshold = threshold;
 
 simulationTimeout = 3000;
 
-initialEnergy = 1499 * puMass * puSpecificHeat;
+initialEnergy = 20 * puMass * puSpecificHeat;
+
+hitsThreshold = false;
 
 %% ODE options functions
 
@@ -33,13 +35,20 @@ We = [];
         end
         
         % unpack input vector
+        activeFuelMass = Y(1); % First element: Pu-238 mass stock
         rtgHeat = Y(2); % Second element: RTG heat energy stock
 
         envTemp = params.spaceTemp; %environment temperature
         myTemp = energyToTemp(rtgHeat, puMass, puSpecificHeat);
+        
+        dmdt = log(2) * (1 / puHalfLife) * activeFuelMass; % mass flow
 
+        heatGeneratedWatts = (dmdt * puEnergyPerKg)/3.1569e7; % radioactive decay energy
+    
         heatLostWatts = puSurfaceArea * emissivity * stefanBoltzmann * ...
             (myTemp - envTemp)^4; % radiation
+        
+        flow = heatGeneratedWatts - heatLostWatts;
         
         % 6 percent efficient generation
         electricalPower = heatLostWatts * 0.064;
@@ -48,8 +57,12 @@ We = [];
         %add to power tracking vector
         We = [We, electricalPower];
         
+        if (hitsThreshold == false && electricalPower > powerThreshold)
+            hitsThreshold = true;
+        end
+            
         %Stop if electricalPower is below the threshold
-        if (electricalPower < powerThreshold)
+        if (electricalPower < powerThreshold && flow < 0)
             status = 1;
             simulationTimeout = t;
         else
@@ -73,8 +86,13 @@ Energy = Stocks(:,2);
 %if abs(We(end) - powerThreshold) < abs(We(end-1) - powerThreshold)
 %    T = Times(end);
 %else
-    T = Times(end-1);
-    simulationTimeout = Times(end-1);
+    if hitsThreshold == false
+        T = 0;
+        simulationTimeout = 0;
+    else
+        T = Times(end-1);
+        simulationTimeout = Times(end-1);
+    end
 %end
 
 % length(Times)
@@ -112,7 +130,7 @@ xlabel('Time(years)');
 ylabel('Mass(kg)');
 figure();
 plot(Times, We, 'g*-');
-refline(0, params.powerThreshold);
+refline(0, powerThreshold);
 title(['Power Output over ',num2str(simulationTimeout),' years']);
 xlabel('Time(years)');
 ylabel('Power(watts)');
@@ -134,7 +152,6 @@ function res = RTGFlows(~, Y)
 
     heatLost =  3.1569e7 * puSurfaceArea * emissivity * stefanBoltzmann * ...
         (myTemp - envTemp)^4; % radiation
-
 
     % pack results (mass; heat energy)
     res = [-dmdt; heatGenerated - heatLost];
