@@ -116,7 +116,7 @@ for i=1:10 * 1e5
 end
 %}
 %% Debugging/Validation Plotting
-%{
+
 hold on
 figure();
 plot(Times, energyToTemp(Energy, puMass, puSpecificHeat), 'r*-');
@@ -134,7 +134,7 @@ refline(0, powerThreshold);
 title(['Power Output over ',num2str(simulationTimeout),' years']);
 xlabel('Time(years)');
 ylabel('Power(watts)');
-%}
+
 %% RTG Flow function
 function res = RTGFlows(~, Y)
 
